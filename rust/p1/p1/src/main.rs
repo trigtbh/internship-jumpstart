@@ -2,13 +2,15 @@ extern crate shellexpand;
 
 use serde::Deserialize;
 
-use uuid::{uuid, Uuid};
-
 use std::time::{Duration, SystemTime};
 use std::env;
 use std::fs::OpenOptions;
 //use std::io::Result;
 use std::io::Write;
+use std::fs::File;
+use std::error::Error;
+
+use rand::Rng;
 
 fn error(msg: &str) {
     usage();
@@ -49,6 +51,73 @@ fn main() {
 
 //    Ok(());
 
-    let tasks: Vec<Task> = serde_json::from_reader(file).expect("JSON not formatted properly");
+    let tasks: Vec<Task>; 
+
+    let readResults = readTasks(file);
+    match readResults {
+        Ok(file) => tasks = file,
+        Err(_err) => tasks = Vec::new()
+    }
+    
+    
+    // let action = args[1];
+    match args[1].as_str() {
+        "create" => createTask(args, &tasks),
+        "status" => status(args, &tasks) ,
+        "update" => updateTask(args, &tasks),
+        "delete" => deleteTask(args, &tasks),
+        _ => error("invalid argument")
+
+    }
+
+    writeToFile(&tasks);
+
 
 }
+
+fn readTasks(file: File) -> Result<Vec<Task>, Box<dyn Error>> {
+    let u = serde_json::from_reader(file)?;
+    return Ok(u);
+}
+
+
+fn status(args: Vec<String>, tasks: &Vec<Task>) {}
+
+fn createTask(args: Vec<String>, tasks: &Vec<Task>) {
+    if args.len() != 3 {
+        error("needs 3 arguments (third argument must be the description)");
+    }
+
+    let mut id: String;
+
+    while true {
+        id = String::from("");
+
+        for i in 0..6 {
+            let n: u8 = rand::thread_rng().gen_range(65..90);
+            let c = n as char;
+            id.push(c);
+
+        }
+
+        println!("{}", id);
+        break;
+
+
+    }
+
+}
+
+fn updateTask(args: Vec<String>, tasks: &Vec<Task>) {
+
+}
+
+fn deleteTask(args: Vec<String>, tasks: &Vec<Task>) {
+
+}
+
+
+fn writeToFile(tasks: &Vec<Task>) {
+
+}
+
